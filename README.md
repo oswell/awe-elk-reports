@@ -27,6 +27,7 @@ Generated environment variables:
    CONFIGURATION_KAFKA_TOPIC              => Kafka topic to push to
 
 AWS access is controlled via the environment variables:
+   AWS_REGION
    AWS_ACCESS_KEY_ID
    AWS_SECRET_ACCESS_KEY
 ```

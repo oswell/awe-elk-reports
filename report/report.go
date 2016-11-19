@@ -18,6 +18,7 @@ import (
     "github.com/aws/aws-sdk-go/service/s3"
     "github.com/aws/aws-sdk-go/service/s3/s3manager"
 
+    "github.com/Sirupsen/logrus"
     "github.com/oswell/aws-elk-reports/db"
     "github.com/oswell/aws-elk-reports/config"
 )
@@ -26,7 +27,7 @@ type Report struct {
     FileName      string
     FileSize      int64
     LastModified  time.Time
-    Config        config.Configuration
+    Config        config.Cfg
 }
 
 func (r Report) needsProcessing() (bool, error) {
@@ -40,17 +41,19 @@ func (r Report) needsProcessing() (bool, error) {
 }
 
 func (r Report) Process() (error) {
-    p, err := r.needsProcessing() ; if err != nil {
-        fmt.Printf("Error: %v\n", err)
+    logrus.Infof("Checking if %s requires processing.", r.FileName)
+    doProcess, err := r.needsProcessing() ; if err != nil {
         return err
     }
 
-    fmt.Printf("Processing report for %s? %v\n", r.FileName, p)
-    r.Run()
-    fmt.Printf("Finished processing report %s\n", r.FileName)
+    if doProcess {
+        logrus.Infof("Processing report for %s", r.FileName)
 
-    db := db.DB{ConnectionString: r.Config.DBUrl}
-    db.SaveReport(&r.FileName, &r.FileSize, &r.LastModified)
+        r.Run()
+
+        db := db.DB{ConnectionString: r.Config.DBUrl}
+        db.SaveReport(&r.FileName, &r.FileSize, &r.LastModified)
+    }
 
     return nil
 }
@@ -72,9 +75,9 @@ func (r Report) handleFile() (error) {
 
 	defer os.Remove(file.Name())
 
-    fmt.Printf("Downloading bill to %s\n", file.Name())
+    logrus.Infof("Downloading billing report to %s", file.Name())
 
-	downloader := s3manager.NewDownloader(session.New(&aws.Config{Region: aws.String("us-west-2")}))
+	downloader := s3manager.NewDownloader(session.New(&aws.Config{}))
 
 	filename := strings.TrimPrefix(r.FileName, "/")
 	input := &s3.GetObjectInput{
@@ -90,7 +93,7 @@ func (r Report) handleFile() (error) {
 		return err
 	}
 
-	fmt.Println("Downloaded file", file.Name(), numBytes, "bytes")
+	logrus.Infof("Downloaded file", file.Name(), numBytes, "bytes")
 
 	return nil
 }
@@ -110,7 +113,6 @@ func (r Report) uncompress(filename string) (error) {
 		}
 		defer fileReader.Close()
 
-		// 074822205801-aws-billing-detailed-line-items-with-resources-and-tags-2014-06.csv
 		parts := strings.Split(file.Name, "-")
 		index := fmt.Sprintf("%s.%s", parts[10], parts[11])
 

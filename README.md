@@ -16,15 +16,16 @@ Configuration is handled via the TOML configuration, or more commonly, via envir
 
 ```
 Generated environment variables:
-   CONFIGURATION_BUCKET                   => S3 Bucket Name
-   CONFIGURATION_PREFIX                   => S3 report key prefix
-   CONFIGURATION_DBURL                    => MySQL connection string
-   CONFIGURATION_KAFKA_BROKERS            => List of Kafka brokers
-   CONFIGURATION_KAFKA_TLSCACERTIFICATE   => TLS CA certificate path
-   CONFIGURATION_KAFKA_TLSCERTIFICATE     => TLS certificiate path
-   CONFIGURATION_KAFKA_TLSKEY             => TLS key path
-   CONFIGURATION_KAFKA_TLSVERIFY          => Boolean, verify TLS certificates
-   CONFIGURATION_KAFKA_TOPIC              => Kafka topic to push to
+   CFG_BUCKET                   => S3 Bucket Name
+   CFG_PREFIX                   => S3 report key prefix
+   CFG_DBURL                    => MySQL connection string
+   CFG_KAFKA_BROKERS            => List of Kafka brokers (comma delimited list)
+   CFG_KAFKA_TLSCACERTIFICATE   => TLS CA certificate path
+   CFG_KAFKA_TLSCERTIFICATE     => TLS certificiate path
+   CFG_KAFKA_TLSKEY             => TLS key path
+   CFG_KAFKA_TLSVERIFY          => Boolean, verify TLS certificates
+   CFG_KAFKA_TOPIC              => Kafka topic to push to
+   CFG_LOGLEVEL                 => Log level for output
 
 AWS access is controlled via the environment variables:
    AWS_REGION

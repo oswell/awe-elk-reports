@@ -1,17 +1,17 @@
 # S3 Bucket that stores Amazon billing reports
-bucket = "aws-billing.example.com"
+#bucket = "aws-billing.example.com"
 
 # S3 Key prefix, if billing reports are not stored in the root of the bucket.
-prefix = ""
+#prefix = ""
 
 # MySQL connection string for storing state
-dburl  = "root:password@tcp/awsreports"
+#dburl  = "root:password@tcp/awsreports"
 
 # Kafka configuration for passing report data to logstash consumers
-[kafka]
-brokers          = ["kafka-1.example.com:9092","kafka-2.example.com:9092","kafka-3.example.com:9092"]
-topic            = "aws-report"
-tlscertificate   = ""
-tlskey           = ""
-tlscacertificate = ""
-tlsverify        = false
+#[kafka]
+#brokers          = ["kafka-1.example.com:9092","kafka-2.example.com:9092","kafka-3.example.com:9092"]
+#topic            = "aws-report"
+#tlscertificate   = ""
+#tlskey           = ""
+#tlscacertificate = ""
+#tlsverify        = false

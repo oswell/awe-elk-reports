@@ -14,21 +14,22 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/koding/multiconfig"
-	// "github.com/jasonlvhit/gocron"
+	"github.com/jasonlvhit/gocron"
 )
 
 // Configuration
-var configuration *config.Configuration
+var configuration *config.Cfg
 
 // findReports crawls the specified S3 bucket for compressed billing report files.
 // Each file found will be read and processed if it hasn't been processed already.
 func findReports() error {
+	logrus.Infof("Searching for available reports in s3://%s/%s", configuration.Bucket, configuration.Prefix)
 	sess, err := session.NewSession()
 	if err != nil {
 		return fmt.Errorf("failed to create session: %s,", err)
 	}
 
-	svc := s3.New(sess, aws.NewConfig().WithRegion("us-west-2"))
+	svc := s3.New(sess, aws.NewConfig())
 
 	reportSuffix := "csv.zip"
 	reports := report.Reports{}
@@ -63,8 +64,10 @@ func findReports() error {
 		}
 	}
 
-	fmt.Printf("Found %d reports.\n", len(reports))
+	logrus.Infof("Found %d reports.", len(reports))
+
 	sort.Sort(reports)
+
 	for _, rep := range reports {
 		err := rep.Process() ; if err != nil {
 			return err
@@ -75,18 +78,24 @@ func findReports() error {
 }
 
 func main() {
+	logrus.SetOutput(os.Stdout)
+
 	mc := multiconfig.NewWithPath("config.toml")
-	configuration = new(config.Configuration)
+	configuration = new(config.Cfg)
 	if err := mc.Load(configuration); err != nil {
 		logrus.Errorf("Failed to load configuration, %s", err)
 		os.Exit(-1)
 	}
 	mc.MustLoad(configuration)
-
-	// cron := gocron.NewScheduler()
-	// cron.Every(1).Hours().Do(fetchLatestBills)
-	// <- cron.Start()
-
 	findReports()
 
+	level, err := logrus.ParseLevel(configuration.LogLevel) ; if err != nil {
+		logrus.Errorf("Error parsing given log level, %s.", configuration.LogLevel)
+	}
+
+	logrus.SetLevel(level)
+
+	cron := gocron.NewScheduler()
+	cron.Every(24).Hours().Do(findReports)
+	<- cron.Start()
 }

@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"crypto/x509"
     "github.com/Shopify/sarama"
+    "github.com/Sirupsen/logrus"
     "github.com/oswell/aws-elk-reports/config"
 )
 
@@ -27,7 +28,7 @@ func (k *Kafka) getProducer() (*sarama.SyncProducer, error) {
 
     	producer, err := sarama.NewSyncProducer(k.Config.Brokers, config)
     	if err != nil {
-            fmt.Printf("Error setting up sync producer\n")
+            logrus.Info("Error setting up sync producer")
     		return nil, fmt.Errorf("Failed to start Sarama producer: %s", err)
     	}
 
@@ -40,7 +41,6 @@ func (k *Kafka) Produce(jsonBytes []byte) (error) {
 
     if k.producer == nil {
         _, err := k.getProducer() ; if err != nil {
-            fmt.Printf("ooooh, there was an error\n")
             return err
         }
     }
@@ -49,7 +49,7 @@ func (k *Kafka) Produce(jsonBytes []byte) (error) {
     _, _, err := (*k.producer).SendMessage(message)
 
     if err != nil {
-        fmt.Printf("FAILED to send message: %s\n", err)
+        logrus.Error("FAILED to send message: %s", err)
     }
 
     return nil

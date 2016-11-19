@@ -1,23 +1,25 @@
 package config
 
 type KafkaConfig struct {
-	Brokers          []string    `json:"brokers",required:"true"`
-	Topic            string      `json:"topic",required:"true"`
-	TLSKey           string      `json:"tlskey",required:"true"`
-	TLSCertificate   string      `json:"tlscertificate",required:"true"`
-	TLSCACertificate string      `json:"tlscacertificate",required:"true"`
-	TLSVerify        bool        `json:"tlsverify",required:"true"`
+	Brokers          []string    `required:"true"`
+	Topic            string      `default:"aws-reports"`
+	TLSKey           string
+	TLSCertificate   string
+	TLSCACertificate string      
+	TLSVerify        bool        `default:false`
 }
 
 // Configuration for MultiConfig
-type Configuration struct {
+type Cfg struct {
 	// S3 bucket in which billing reports are stored.
-	Bucket string `json:"bucket",required:"true"`
+	Bucket   string   `required:"true"`
 
 	// Report path value assigned in the billing report configuration
-	Prefix string `json:"prefix",required:"false"`
+	Prefix   string   `default:""`
 
-	DBUrl string `json:"dburl",required:"true"`
+	DBUrl    string   `required:"true"`
 
-	Kafka KafkaConfig `json:"kafka,required:"true"`
+	LogLevel string   `default:"info"`
+
+	Kafka KafkaConfig `required:"true"`
 }

@@ -36,3 +36,6 @@ fmt:
 
 fmtcheck:
 	$(foreach file,$(SRCS),gofmt -d $(file);)
+
+docker:
+	docker build --no-cache -t aws-elk-reports:latest .
